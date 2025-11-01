@@ -1,0 +1,15 @@
+target/
+.mvn/
+mvnw
+mvnw.cmd
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.git/
+.gitignore
+*.log
+.env
+node_modules/
+dist/

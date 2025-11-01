@@ -1,0 +1,231 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: shopsquare-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: user_service_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shopsquare-network
+
+  eureka-server:
+    build:
+      context: ./eurekaserver
+      dockerfile: Dockerfile
+    container_name: shopsquare-eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - shopsquare-network
+    healthcheck:
+      disable: true
+
+  apigateway:
+    build:
+      context: ./apigateway
+      dockerfile: Dockerfile
+    container_name: shopsquare-apigateway
+    ports:
+      - "9100:9100"
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+    networks:
+      - shopsquare-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9100/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: shopsquare-user-service
+    ports:
+      - "9101:9101"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/user_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - shopsquare-network
+
+  shop-service:
+    build:
+      context: ./shopservice
+      dockerfile: Dockerfile
+    container_name: shopsquare-shop-service
+    ports:
+      - "9102:9102"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/shop_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - shopsquare-network
+
+  product-service:
+    build:
+      context: ./productservice
+      dockerfile: Dockerfile
+    container_name: shopsquare-product-service
+    ports:
+      - "9103:9103"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/products_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - shopsquare-network
+
+  cart-service:
+    build:
+      context: ./cartservice
+      dockerfile: Dockerfile
+    container_name: shopsquare-cart-service
+    ports:
+      - "9104:9104"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/cart_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - shopsquare-network
+
+  order-service:
+    build:
+      context: ./orderservice
+      dockerfile: Dockerfile
+    container_name: shopsquare-order-service
+    ports:
+      - "9105:9105"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/order_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - shopsquare-network
+
+  profile-service:
+    build:
+      context: ./profileservice
+      dockerfile: Dockerfile
+    container_name: shopsquare-profile-service
+    ports:
+      - "9106:9106"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/profile_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - shopsquare-network
+
+  cart-item-service:
+    build:
+      context: ./cartitem
+      dockerfile: Dockerfile
+    container_name: shopsquare-cart-item-service
+    ports:
+      - "9107:9107"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/cartitem_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - shopsquare-network
+
+  order-item-service:
+    build:
+      context: ./orderitem
+      dockerfile: Dockerfile
+    container_name: shopsquare-order-item-service
+    ports:
+      - "9108:9108"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/orderitem_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - shopsquare-network
+
+  frontend:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    container_name: shopsquare-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - apigateway
+    networks:
+      - shopsquare-network
+
+networks:
+  shopsquare-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
