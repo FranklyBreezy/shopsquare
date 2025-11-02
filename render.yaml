@@ -33,7 +33,7 @@ services:
   #  2. API Gateway (Public Web Service)
   #     This is your ONLY public entry point for the backend.
   # -----------------------------------------------------------------
-  - type: web # Public Web Service
+  - type: web # Public Web Service - MUST be 'web' to be public
     name: apigateway
     runtime: docker
     dockerfilePath: ./apigateway/Dockerfile
@@ -50,15 +50,15 @@ services:
 
   # -----------------------------------------------------------------
   #  3. User Service (Backend Service)
-  #     All other microservices follow this same pattern.
+  #     All other microservices are Private Services (pserv)
+  #     This prevents them from spinning down.
   # -----------------------------------------------------------------
-  - type: web
+  - type: pserv # CHANGED from 'web' to 'pserv'
     name: user-service
     runtime: docker
     dockerfilePath: ./user-service/Dockerfile
     dockerContext: ./user-service
     plan: free
-    ports: 9101
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -81,13 +81,12 @@ services:
   # -----------------------------------------------------------------
   #  4. Shop Service
   # -----------------------------------------------------------------
-  - type: web
+  - type: pserv # CHANGED from 'web' to 'pserv'
     name: shop-service
     runtime: docker
     dockerfilePath: ./shopservice/Dockerfile
     dockerContext: ./shopservice
     plan: free
-    ports: 9102
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -109,13 +108,12 @@ services:
   # -----------------------------------------------------------------
   #  5. Product Service
   # -----------------------------------------------------------------
-  - type: web
+  - type: pserv # CHANGED from 'web' to 'pserv'
     name: product-service
     runtime: docker
     dockerfilePath: ./productservice/Dockerfile
     dockerContext: ./productservice
     plan: free
-    ports: 9103
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -137,13 +135,12 @@ services:
   # -----------------------------------------------------------------
   #  6. Cart Service
   # -----------------------------------------------------------------
-  - type: web
+  - type: pserv # CHANGED from 'web' to 'pserv'
     name: cart-service
     runtime: docker
     dockerfilePath: ./cartservice/Dockerfile
     dockerContext: ./cartservice
     plan: free
-    ports: 9104
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -165,13 +162,12 @@ services:
   # -----------------------------------------------------------------
   #  7. Order Service
   # -----------------------------------------------------------------
-  - type: web
+  - type: pserv # CHANGED from 'web' to 'pserv'
     name: order-service
     runtime: docker
     dockerfilePath: ./orderservice/Dockerfile
     dockerContext: ./orderservice
     plan: free
-    ports: 9105
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -193,13 +189,12 @@ services:
   # -----------------------------------------------------------------
   #  8. Profile Service
   # -----------------------------------------------------------------
-  - type: web
+  - type: pserv # CHANGED from 'web' to 'pserv'
     name: profile-service
     runtime: docker
     dockerfilePath: ./profileservice/Dockerfile
     dockerContext: ./profileservice
     plan: free
-    ports: 9106
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -221,13 +216,12 @@ services:
   # -----------------------------------------------------------------
   #  9. Cart Item Service
   # -----------------------------------------------------------------
-  - type: web
+  - type: pserv # CHANGED from 'web' to 'pserv'
     name: cart-item-service
     runtime: docker
     dockerfilePath: ./cartitem/Dockerfile
     dockerContext: ./cartitem
     plan: free
-    ports: 9107
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -249,13 +243,12 @@ services:
   # -----------------------------------------------------------------
   #  10. Order Item Service
   # -----------------------------------------------------------------
-  - type: web
+  - type: pserv # CHANGED from 'web' to 'pserv'
     name: order-item-service
     runtime: docker
     dockerfilePath: ./orderitem/Dockerfile
     dockerContext: ./orderitem
     plan: free
-    ports: 9108
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -273,3 +266,4 @@ services:
         fromDatabase:
           name: shopsquare-mysql
           property: password
+
