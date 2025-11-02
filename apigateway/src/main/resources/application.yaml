@@ -1,0 +1,73 @@
+server:
+  port: 9100
+
+spring:
+  application:
+    name: apigateway
+
+  cloud:
+    gateway:
+      default-filters:
+        - RemoveRequestHeader=Cookie
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+
+      globalcors:
+        cors-configurations:
+          '[/**]': # Apply to all paths
+            allowedOrigins:
+              - "http://localhost:5173"
+              - "https://shopsquare.vercel.app" # Replace with your actual Vercel URL if different
+            allowedMethods:
+              - "GET"
+              - "POST"
+              - "PUT"
+              - "DELETE"
+              - "OPTIONS"
+            allowedHeaders: "*"
+            allowCredentials: true
+
+      routes:
+        - id: productservice
+          uri: lb://product-service
+          predicates:
+            - Path=/api/products/**
+
+        - id: shopservice
+          uri: lb://shop-service
+          predicates:
+            - Path=/api/shops/**
+
+        - id: orderservice
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+
+        - id: orderitem
+          uri: lb://order-item-service
+          predicates:
+            - Path=/api/order-items/**
+
+        - id: cartservice
+          uri: lb://cart-service
+          predicates:
+            - Path=/api/carts/**
+
+        - id: cartitem
+          uri: lb://cart-item-service
+          predicates:
+            - Path=/api/cart-items/**
+
+        - id: profileservice
+          uri: lb://profile-service
+          predicates:
+            - Path=/api/profiles/**
+
+        - id: userservice
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
