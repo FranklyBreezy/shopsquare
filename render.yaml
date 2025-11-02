@@ -40,7 +40,7 @@ services:
     dockerContext: ./apigateway
     plan: free
     # So Render knows it's running
-    healthCheckPath: /actuator/health # <-- THIS IS THE FIX (was 'healthCheck:')
+    healthCheckPath: /actuator/health
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/ # Uses internal DNS
@@ -67,7 +67,7 @@ services:
         # Pulls the internal connection string from the DB we made above
         fromDatabase:
           name: shopsquare-mysql
-          property: internalConnectionString
+          property: connectionString # <-- THIS IS THE FIX
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -94,7 +94,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: internalConnectionString
+          property: connectionString # <-- THIS IS THE FIX
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -121,7 +121,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: internalConnectionString
+          property: connectionString # <-- THIS IS THE FIX
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -148,7 +148,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: internalConnectionString
+          property: connectionString # <-- THIS IS THE FIX
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -169,13 +169,13 @@ services:
     plan: free
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-        value: http://eureka-server:8Z761/eureka/
+        value: http://eureka-server:8761/eureka/ # <-- Typo 'Z' fixed
       - key: SERVER_PORT
         value: 9105
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: internalConnectionString
+          property: connectionString # <-- THIS IS THE FIX
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -202,7 +202,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: internalConnectionString
+          property: connectionString # <-- THIS IS THE FIX
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -229,7 +229,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: internalConnectionString
+          property: connectionString # <-- THIS IS THE FIX
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -256,7 +256,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: internalConnectionString
+          property: connectionString # <-- THIS IS THE FIX
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
