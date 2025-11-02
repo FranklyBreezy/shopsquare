@@ -12,15 +12,15 @@ databases:
 
 services:
   # -----------------------------------------------------------------
-  #  1. Eureka Server (Private Service)
-  #     This is not public and only your other services can talk to it.
+  #  1. Eureka Server (Must be 'web' on free plan)
   # -----------------------------------------------------------------
-  - type: pserv # Private Service
+  - type: web # CHANGED from 'pserv' to 'web'
     name: eureka-server
     runtime: docker
     dockerfilePath: ./eurekaserver/Dockerfile
     dockerContext: ./eurekaserver
     plan: free # Use the free tier
+    healthCheckPath: / # Eureka's dashboard
     envVars:
       - key: EUREKA_CLIENT_REGISTERWITHEUREKA
         value: false
@@ -31,43 +31,40 @@ services:
 
   # -----------------------------------------------------------------
   #  2. API Gateway (Public Web Service)
-  #     This is your ONLY public entry point for the backend.
   # -----------------------------------------------------------------
-  - type: web # Public Web Service - MUST be 'web' to be public
+  - type: web # This MUST be 'web' to be public
     name: apigateway
     runtime: docker
     dockerfilePath: ./apigateway/Dockerfile
     dockerContext: ./apigateway
     plan: free
-    # So Render knows it's running
     healthCheckPath: /actuator/health
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-        value: http://eureka-server:8761/eureka/ # Uses internal DNS
+        # Render services can talk to each other using their 'name' and port
+        value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9100 # Render uses this variable to find the port
 
   # -----------------------------------------------------------------
-  #  3. User Service (Backend Service)
-  #     All other microservices are Private Services (pserv)
-  #     This prevents them from spinning down.
+  #  3. User Service (Must be 'web' on free plan)
   # -----------------------------------------------------------------
-  - type: pserv # CHANGED from 'web' to 'pserv'
+  - type: web # CHANGED from 'pserv' to 'web'
     name: user-service
     runtime: docker
     dockerfilePath: ./user-service/Dockerfile
     dockerContext: ./user-service
     plan: free
+    healthCheckPath: /actuator/health
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9101
       - key: SPRING_DATASOURCE_URL
-        # Pulls the internal connection string from the DB we made above
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString # <-- THIS IS THE FIX
+          property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -80,12 +77,13 @@ services:
   # -----------------------------------------------------------------
   #  4. Shop Service
   # -----------------------------------------------------------------
-  - type: pserv # CHANGED from 'web' to 'pserv'
+  - type: web # CHANGED from 'pserv' to 'web'
     name: shop-service
     runtime: docker
     dockerfilePath: ./shopservice/Dockerfile
     dockerContext: ./shopservice
     plan: free
+    healthCheckPath: /actuator/health
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -94,7 +92,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString # <-- THIS IS THE FIX
+          property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -107,12 +105,13 @@ services:
   # -----------------------------------------------------------------
   #  5. Product Service
   # -----------------------------------------------------------------
-  - type: pserv # CHANGED from 'web' to 'pserv'
+  - type: web # CHANGED from 'pserv' to 'web'
     name: product-service
     runtime: docker
     dockerfilePath: ./productservice/Dockerfile
     dockerContext: ./productservice
     plan: free
+    healthCheckPath: /actuator/health
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -121,7 +120,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString # <-- THIS IS THE FIX
+          property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -134,12 +133,13 @@ services:
   # -----------------------------------------------------------------
   #  6. Cart Service
   # -----------------------------------------------------------------
-  - type: pserv # CHANGED from 'web' to 'pserv'
+  - type: web # CHANGED from 'pserv' to 'web'
     name: cart-service
     runtime: docker
     dockerfilePath: ./cartservice/Dockerfile
     dockerContext: ./cartservice
     plan: free
+    healthCheckPath: /actuator/health
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -148,7 +148,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString # <-- THIS IS THE FIX
+          property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -161,21 +161,22 @@ services:
   # -----------------------------------------------------------------
   #  7. Order Service
   # -----------------------------------------------------------------
-  - type: pserv # CHANGED from 'web' to 'pserv'
+  - type: web # CHANGED from 'pserv' to 'web'
     name: order-service
     runtime: docker
     dockerfilePath: ./orderservice/Dockerfile
     dockerContext: ./orderservice
     plan: free
+    healthCheckPath: /actuator/health
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-        value: http://eureka-server:8761/eureka/ # <-- Typo 'Z' fixed
+        value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9105
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString # <-- THIS IS THE FIX
+          property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -188,12 +189,13 @@ services:
   # -----------------------------------------------------------------
   #  8. Profile Service
   # -----------------------------------------------------------------
-  - type: pserv # CHANGED from 'web' to 'pserv'
+  - type: web # CHANGED from 'pserv' to 'web'
     name: profile-service
     runtime: docker
     dockerfilePath: ./profileservice/Dockerfile
     dockerContext: ./profileservice
     plan: free
+    healthCheckPath: /actuator/health
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -202,7 +204,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString # <-- THIS IS THE FIX
+          property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -215,12 +217,13 @@ services:
   # -----------------------------------------------------------------
   #  9. Cart Item Service
   # -----------------------------------------------------------------
-  - type: pserv # CHANGED from 'web' to 'pserv'
+  - type: web # CHANGED from 'pserv' to 'web'
     name: cart-item-service
     runtime: docker
     dockerfilePath: ./cartitem/Dockerfile
     dockerContext: ./cartitem
     plan: free
+    healthCheckPath: /actuator/health
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -229,7 +232,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString # <-- THIS IS THE FIX
+          property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -242,12 +245,13 @@ services:
   # -----------------------------------------------------------------
   #  10. Order Item Service
   # -----------------------------------------------------------------
-  - type: pserv # CHANGED from 'web' to 'pserv'
+  - type: web # CHANGED from 'pserv' to 'web'
     name: order-item-service
     runtime: docker
     dockerfilePath: ./orderitem/Dockerfile
     dockerContext: ./orderitem
     plan: free
+    healthCheckPath: /actuator/health
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -256,7 +260,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString # <-- THIS IS THE FIX
+          property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
