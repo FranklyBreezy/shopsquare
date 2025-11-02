@@ -1,0 +1,275 @@
+# This is your "Infrastructure as Code" file for Render.
+# It replaces your docker-compose.yml and defines all backend services.
+# The 'ui' service is NOT included here, as it will be deployed on Vercel.
+
+databases:
+  # -----------------------------------------------------------------
+  #  Create one shared MySQL database on the free tier
+  # -----------------------------------------------------------------
+  - name: shopsquare-mysql
+    databaseName: shopsquare_db # All services will use this one DB
+    plan: free # Use the free tier MySQL
+
+services:
+  # -----------------------------------------------------------------
+  #  1. Eureka Server (Private Service)
+  #     This is not public and only your other services can talk to it.
+  # -----------------------------------------------------------------
+  - type: pserv # Private Service
+    name: eureka-server
+    runtime: docker
+    dockerfilePath: ./eurekaserver/Dockerfile
+    dockerContext: ./eurekaserver
+    plan: free # Use the free tier
+    envVars:
+      - key: EUREKA_CLIENT_REGISTERWITHEUREKA
+        value: false
+      - key: EUREKA_CLIENT_FETCHREGISTRY
+        value: false
+      - key: SERVER_PORT
+        value: 8761
+
+  # -----------------------------------------------------------------
+  #  2. API Gateway (Public Web Service)
+  #     This is your ONLY public entry point for the backend.
+  # -----------------------------------------------------------------
+  - type: web # Public Web Service
+    name: apigateway
+    runtime: docker
+    dockerfilePath: ./apigateway/Dockerfile
+    dockerContext: ./apigateway
+    plan: free
+    ports: 9100 # Internal port
+    healthCheck: # So Render knows it's running
+      path: /actuator/health
+    envVars:
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://eureka-server:8761/eureka/ # Uses internal DNS
+      - key: SERVER_PORT
+        value: 9100
+
+  # -----------------------------------------------------------------
+  #  3. User Service (Backend Service)
+  #     All other microservices follow this same pattern.
+  # -----------------------------------------------------------------
+  - type: web
+    name: user-service
+    runtime: docker
+    dockerfilePath: ./user-service/Dockerfile
+    dockerContext: ./user-service
+    plan: free
+    ports: 9101
+    envVars:
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://eureka-server:8761/eureka/
+      - key: SERVER_PORT
+        value: 9101
+      - key: SPRING_DATASOURCE_URL
+        # Pulls the internal connection string from the DB we made above
+        fromDatabase:
+          name: shopsquare-mysql
+          property: internalConnectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: shopsquare-mysql
+          property: password
+
+  # -----------------------------------------------------------------
+  #  4. Shop Service
+  # -----------------------------------------------------------------
+  - type: web
+    name: shop-service
+    runtime: docker
+    dockerfilePath: ./shopservice/Dockerfile
+    dockerContext: ./shopservice
+    plan: free
+    ports: 9102
+    envVars:
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://eureka-server:8761/eureka/
+      - key: SERVER_PORT
+        value: 9102
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: shopsquare-mysql
+          property: internalConnectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: shopsquare-mysql
+          property: password
+
+  # -----------------------------------------------------------------
+  #  5. Product Service
+  # -----------------------------------------------------------------
+  - type: web
+    name: product-service
+    runtime: docker
+    dockerfilePath: ./productservice/Dockerfile
+    dockerContext: ./productservice
+    plan: free
+    ports: 9103
+    envVars:
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://eureka-server:8761/eureka/
+      - key: SERVER_PORT
+        value: 9103
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: shopsquare-mysql
+          property: internalConnectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: shopsquare-mysql
+          property: password
+
+  # -----------------------------------------------------------------
+  #  6. Cart Service
+  # -----------------------------------------------------------------
+  - type: web
+    name: cart-service
+    runtime: docker
+    dockerfilePath: ./cartservice/Dockerfile
+    dockerContext: ./cartservice
+    plan: free
+    ports: 9104
+    envVars:
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://eureka-server:8761/eureka/
+      - key: SERVER_PORT
+        value: 9104
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: shopsquare-mysql
+          property: internalConnectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: shopsquare-mysql
+          property: password
+
+  # -----------------------------------------------------------------
+  #  7. Order Service
+  # -----------------------------------------------------------------
+  - type: web
+    name: order-service
+    runtime: docker
+    dockerfilePath: ./orderservice/Dockerfile
+    dockerContext: ./orderservice
+    plan: free
+    ports: 9105
+    envVars:
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://eureka-server:8761/eureka/
+      - key: SERVER_PORT
+        value: 9105
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: shopsquare-mysql
+          property: internalConnectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: shopsquare-mysql
+          property: password
+
+  # -----------------------------------------------------------------
+  #  8. Profile Service
+  # -----------------------------------------------------------------
+  - type: web
+    name: profile-service
+    runtime: docker
+    dockerfilePath: ./profileservice/Dockerfile
+    dockerContext: ./profileservice
+    plan: free
+    ports: 9106
+    envVars:
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://eureka-server:8761/eureka/
+      - key: SERVER_PORT
+        value: 9106
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: shopsquare-mysql
+          property: internalConnectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: shopsquare-mysql
+          property: password
+
+  # -----------------------------------------------------------------
+  #  9. Cart Item Service
+  # -----------------------------------------------------------------
+  - type: web
+    name: cart-item-service
+    runtime: docker
+    dockerfilePath: ./cartitem/Dockerfile
+    dockerContext: ./cartitem
+    plan: free
+    ports: 9107
+    envVars:
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://eureka-server:8761/eureka/
+      - key: SERVER_PORT
+        value: 9107
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: shopsquare-mysql
+          property: internalConnectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: shopsquare-mysql
+          property: password
+
+  # -----------------------------------------------------------------
+  #  10. Order Item Service
+  # -----------------------------------------------------------------
+  - type: web
+    name: order-item-service
+    runtime: docker
+    dockerfilePath: ./orderitem/Dockerfile
+    dockerContext: ./orderitem
+    plan: free
+    ports: 9108
+    envVars:
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://eureka-server:8761/eureka/
+      - key: SERVER_PORT
+        value: 9108
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: shopsquare-mysql
+          property: internalConnectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: shopsquare-mysql
+          property: password
