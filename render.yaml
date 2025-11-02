@@ -39,10 +39,8 @@ services:
     dockerfilePath: ./apigateway/Dockerfile
     dockerContext: ./apigateway
     plan: free
-    # ports: 9100 <-- THIS LINE WAS REMOVED. IT'S NOT VALID IN RENDER.YAML
     # So Render knows it's running
-    healthCheck:
-      path: /actuator/health
+    healthCheckPath: /actuator/health # <-- THIS IS THE FIX (was 'healthCheck:')
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/ # Uses internal DNS
@@ -90,7 +88,7 @@ services:
     plan: free
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-        value: http.://eureka-server:8761/eureka/
+        value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9102
       - key: SPRING_DATASOURCE_URL
@@ -171,7 +169,7 @@ services:
     plan: free
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-        value: http://eureka-server:8761/eureka/
+        value: http://eureka-server:8Z761/eureka/
       - key: SERVER_PORT
         value: 9105
       - key: SPRING_DATASOURCE_URL
