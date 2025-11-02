@@ -20,7 +20,7 @@ services:
     dockerfilePath: ./eurekaserver/Dockerfile
     dockerContext: ./eurekaserver
     plan: free # Use the free tier
-    healthCheckPath: / # Eureka's dashboard
+    healthCheckPath: / # Eureka's dashboard is a good health check
     envVars:
       - key: EUREKA_CLIENT_REGISTERWITHEUREKA
         value: false
@@ -38,7 +38,7 @@ services:
     dockerfilePath: ./apigateway/Dockerfile
     dockerContext: ./apigateway
     plan: free
-    healthCheckPath: /actuator/health
+    healthCheckPath: /actuator/info
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         # Render services can talk to each other using their 'name' and port
@@ -55,16 +55,28 @@ services:
     dockerfilePath: ./user-service/Dockerfile
     dockerContext: ./user-service
     plan: free
-    healthCheckPath: /actuator/health
+    healthCheckPath: /actuator/info
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9101
-      - key: SPRING_DATASOURCE_URL
+      # --- FIX: Manually build the JDBC URL ---
+      - key: DB_HOST
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: shopsquare-mysql
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: database
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      # -----------------------------------------
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -83,16 +95,28 @@ services:
     dockerfilePath: ./shopservice/Dockerfile
     dockerContext: ./shopservice
     plan: free
-    healthCheckPath: /actuator/health
+    healthCheckPath: /actuator/info
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9102
-      - key: SPRING_DATASOURCE_URL
+      # --- FIX: Manually build the JDBC URL ---
+      - key: DB_HOST
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: shopsquare-mysql
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: database
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      # -----------------------------------------
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -111,16 +135,28 @@ services:
     dockerfilePath: ./productservice/Dockerfile
     dockerContext: ./productservice
     plan: free
-    healthCheckPath: /actuator/health
+    healthCheckPath: /actuator/info
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9103
-      - key: SPRING_DATASOURCE_URL
+      # --- FIX: Manually build the JDBC URL ---
+      - key: DB_HOST
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: shopsquare-mysql
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: database
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      # -----------------------------------------
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -139,16 +175,28 @@ services:
     dockerfilePath: ./cartservice/Dockerfile
     dockerContext: ./cartservice
     plan: free
-    healthCheckPath: /actuator/health
+    healthCheckPath: /actuator/info
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9104
-      - key: SPRING_DATASOURCE_URL
+      # --- FIX: Manually build the JDBC URL ---
+      - key: DB_HOST
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: shopsquare-mysql
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: database
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      # -----------------------------------------
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -167,16 +215,28 @@ services:
     dockerfilePath: ./orderservice/Dockerfile
     dockerContext: ./orderservice
     plan: free
-    healthCheckPath: /actuator/health
+    healthCheckPath: /actuator/info
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9105
-      - key: SPRING_DATASOURCE_URL
+      # --- FIX: Manually build the JDBC URL ---
+      - key: DB_HOST
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: shopsquare-mysql
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: database
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      # -----------------------------------------
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -195,16 +255,28 @@ services:
     dockerfilePath: ./profileservice/Dockerfile
     dockerContext: ./profileservice
     plan: free
-    healthCheckPath: /actuator/health
+    healthCheckPath: /actuator/info
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9106
-      - key: SPRING_DATASOURCE_URL
+      # --- FIX: Manually build the JDBC URL ---
+      - key: DB_HOST
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: shopsquare-mysql
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: database
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      # -----------------------------------------
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -223,16 +295,28 @@ services:
     dockerfilePath: ./cartitem/Dockerfile
     dockerContext: ./cartitem
     plan: free
-    healthCheckPath: /actuator/health
+    healthCheckPath: /actuator/info
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9107
-      - key: SPRING_DATASOURCE_URL
+      # --- FIX: Manually build the JDBC URL ---
+      - key: DB_HOST
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: shopsquare-mysql
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: database
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      # -----------------------------------------
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
@@ -251,16 +335,28 @@ services:
     dockerfilePath: ./orderitem/Dockerfile
     dockerContext: ./orderitem
     plan: free
-    healthCheckPath: /actuator/health
+    healthCheckPath: /actuator/info
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9108
-      - key: SPRING_DATASOURCE_URL
+      # --- FIX: Manually build the JDBC URL ---
+      - key: DB_HOST
         fromDatabase:
           name: shopsquare-mysql
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: shopsquare-mysql
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: shopsquare-mysql
+          property: database
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      # -----------------------------------------
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: shopsquare-mysql
