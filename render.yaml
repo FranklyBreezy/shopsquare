@@ -85,6 +85,11 @@ services:
         fromDatabase:
           name: shopsquare-mysql
           property: password
+      # --- FIX: Add Dialect and Connection Timeout ---
+      - key: SPRING_JPA_DATABASE-PLATFORM
+        value: org.hibernate.dialect.MySQLDialect
+      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
+        value: 60000
 
   # -----------------------------------------------------------------
   #  4. Shop Service
@@ -125,6 +130,11 @@ services:
         fromDatabase:
           name: shopsquare-mysql
           property: password
+      # --- FIX: Add Dialect and Connection Timeout ---
+      - key: SPRING_JPA_DATABASE-PLATFORM
+        value: org.hibernate.dialect.MySQLDialect
+      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
+        value: 60000
 
   # -----------------------------------------------------------------
   #  5. Product Service
@@ -165,6 +175,11 @@ services:
         fromDatabase:
           name: shopsquare-mysql
           property: password
+      # --- FIX: Add Dialect and Connection Timeout ---
+      - key: SPRING_JPA_DATABASE-PLATFORM
+        value: org.hibernate.dialect.MySQLDialect
+      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
+        value: 60000
 
   # -----------------------------------------------------------------
   #  6. Cart Service
@@ -205,6 +220,11 @@ services:
         fromDatabase:
           name: shopsquare-mysql
           property: password
+      # --- FIX: Add Dialect and Connection Timeout ---
+      - key: SPRING_JPA_DATABASE-PLATFORM
+        value: org.hibernate.dialect.MySQLDialect
+      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
+        value: 60000
 
   # -----------------------------------------------------------------
   #  7. Order Service
@@ -245,6 +265,11 @@ services:
         fromDatabase:
           name: shopsquare-mysql
           property: password
+      # --- FIX: Add Dialect and Connection Timeout ---
+      - key: SPRING_JPA_DATABASE-PLATFORM
+        value: org.hibernate.dialect.MySQLDialect
+      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
+        value: 60000
 
   # -----------------------------------------------------------------
   #  8. Profile Service
@@ -285,6 +310,11 @@ services:
         fromDatabase:
           name: shopsquare-mysql
           property: password
+      # --- FIX: Add Dialect and Connection Timeout ---
+      - key: SPRING_JPA_DATABASE-PLATFORM
+        value: org.hibernate.dialect.MySQLDialect
+      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
+        value: 60000
 
   # -----------------------------------------------------------------
   #  9. Cart Item Service
@@ -325,6 +355,11 @@ services:
         fromDatabase:
           name: shopsquare-mysql
           property: password
+      # --- FIX: Add Dialect and Connection Timeout ---
+      - key: SPRING_JPA_DATABASE-PLATFORM
+        value: org.hibernate.dialect.MySQLDialect
+      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
+        value: 60000
 
   # -----------------------------------------------------------------
   #  10. Order Item Service
@@ -365,4 +400,9 @@ services:
         fromDatabase:
           name: shopsquare-mysql
           property: password
+      # --- FIX: Add Dialect and Connection Timeout ---
+      - key: SPRING_JPA_DATABASE-PLATFORM
+        value: org.hibernate.dialect.MySQLDialect
+      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
+        value: 60000
 
