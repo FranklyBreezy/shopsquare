@@ -52,15 +52,13 @@ services:
     dockerContext: ./user-service
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
-      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9101
       # --- NEW: Supabase Postgres Vars ---
-      # These values are pulled from the 'database-creds' group
+      # These values are pulled from the Blueprint's environment
       - key: SPRING_DATASOURCE_URL
         value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
       - key: SPRING_DATASOURCE_USERNAME
@@ -80,8 +78,6 @@ services:
     dockerContext: ./shopservice
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
-      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -107,8 +103,6 @@ services:
     dockerContext: ./productservice
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
-      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -134,8 +128,6 @@ services:
     dockerContext: ./cartservice
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
-      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -161,8 +153,6 @@ services:
     dockerContext: ./orderservice
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
-      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -188,8 +178,6 @@ services:
     dockerContext: ./profileservice
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
-      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -215,8 +203,6 @@ services:
     dockerContext: ./cartitem
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
-      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -242,8 +228,6 @@ services:
     dockerContext: ./orderitem
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
-      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
