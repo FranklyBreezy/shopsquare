@@ -2,25 +2,22 @@
 # It replaces your docker-compose.yml and defines all backend services.
 # The 'ui' service is NOT included here, as it will be deployed on Vercel.
 
-databases:
-  # -----------------------------------------------------------------
-  #  Create one shared MySQL database on the free tier
-  # -----------------------------------------------------------------
-  - name: shopsquare-mysql
-    databaseName: shopsquare_db # All services will use this one DB
-    plan: free # Use the free tier MySQL
+#
+# --- NO DATABASE SECTION ---
+# We are now using an external, always-on Supabase DB
+#
 
 services:
   # -----------------------------------------------------------------
   #  1. Eureka Server (Must be 'web' on free plan)
   # -----------------------------------------------------------------
-  - type: web # CHANGED from 'pserv' to 'web'
+  - type: web
     name: eureka-server
     runtime: docker
     dockerfilePath: ./eurekaserver/Dockerfile
     dockerContext: ./eurekaserver
-    plan: free # Use the free tier
-    healthCheckPath: / # Eureka's dashboard is a good health check
+    plan: free
+    healthCheckPath: /
     envVars:
       - key: EUREKA_CLIENT_REGISTERWITHEUREKA
         value: false
@@ -32,7 +29,7 @@ services:
   # -----------------------------------------------------------------
   #  2. API Gateway (Public Web Service)
   # -----------------------------------------------------------------
-  - type: web # This MUST be 'web' to be public
+  - type: web
     name: apigateway
     runtime: docker
     dockerfilePath: ./apigateway/Dockerfile
@@ -41,368 +38,224 @@ services:
     healthCheckPath: /actuator/info
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-        # Render services can talk to each other using their 'name' and port
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
-        value: 9100 # Render uses this variable to find the port
+        value: 9100
 
   # -----------------------------------------------------------------
   #  3. User Service (Must be 'web' on free plan)
   # -----------------------------------------------------------------
-  - type: web # CHANGED from 'pserv' to 'web'
+  - type: web
     name: user-service
     runtime: docker
     dockerfilePath: ./user-service/Dockerfile
     dockerContext: ./user-service
     plan: free
     healthCheckPath: /actuator/info
+    envVarGroups:
+      - database-creds # Links to the group you will create
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9101
-      # --- FIX: Manually build the JDBC URL ---
-      - key: DB_HOST
-        fromDatabase:
-          name: shopsquare-mysql
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: shopsquare-mysql
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: database
+      # --- NEW: Supabase Postgres Vars ---
+      # These values are pulled from the 'database-creds' group
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      # -----------------------------------------
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
       - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: user
+        value: ${DB_USER}
       - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: shopsquare-mysql
-          property: password
-      # --- FIX: Add Dialect and Connection Timeout ---
+        value: ${DB_PASS}
       - key: SPRING_JPA_DATABASE-PLATFORM
-        value: org.hibernate.dialect.MySQLDialect
-      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
-        value: 60000
+        value: org.hibernate.dialect.PostgreSQLDialect
 
   # -----------------------------------------------------------------
   #  4. Shop Service
   # -----------------------------------------------------------------
-  - type: web # CHANGED from 'pserv' to 'web'
+  - type: web
     name: shop-service
     runtime: docker
     dockerfilePath: ./shopservice/Dockerfile
     dockerContext: ./shopservice
     plan: free
     healthCheckPath: /actuator/info
+    envVarGroups:
+      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9102
-      # --- FIX: Manually build the JDBC URL ---
-      - key: DB_HOST
-        fromDatabase:
-          name: shopsquare-mysql
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: shopsquare-mysql
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: database
+      # --- NEW: Supabase Postgres Vars ---
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      # -----------------------------------------
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
       - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: user
+        value: ${DB_USER}
       - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: shopsquare-mysql
-          property: password
-      # --- FIX: Add Dialect and Connection Timeout ---
+        value: ${DB_PASS}
       - key: SPRING_JPA_DATABASE-PLATFORM
-        value: org.hibernate.dialect.MySQLDialect
-      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
-        value: 60000
+        value: org.hibernate.dialect.PostgreSQLDialect
 
   # -----------------------------------------------------------------
   #  5. Product Service
   # -----------------------------------------------------------------
-  - type: web # CHANGED from 'pserv' to 'web'
+  - type: web
     name: product-service
     runtime: docker
     dockerfilePath: ./productservice/Dockerfile
     dockerContext: ./productservice
     plan: free
     healthCheckPath: /actuator/info
+    envVarGroups:
+      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9103
-      # --- FIX: Manually build the JDBC URL ---
-      - key: DB_HOST
-        fromDatabase:
-          name: shopsquare-mysql
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: shopsquare-mysql
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: database
+      # --- NEW: Supabase Postgres Vars ---
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      # -----------------------------------------
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
       - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: user
+        value: ${DB_USER}
       - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: shopsquare-mysql
-          property: password
-      # --- FIX: Add Dialect and Connection Timeout ---
+        value: ${DB_PASS}
       - key: SPRING_JPA_DATABASE-PLATFORM
-        value: org.hibernate.dialect.MySQLDialect
-      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
-        value: 60000
+        value: org.hibernate.dialect.PostgreSQLDialect
 
   # -----------------------------------------------------------------
   #  6. Cart Service
   # -----------------------------------------------------------------
-  - type: web # CHANGED from 'pserv' to 'web'
+  - type: web
     name: cart-service
     runtime: docker
     dockerfilePath: ./cartservice/Dockerfile
     dockerContext: ./cartservice
     plan: free
     healthCheckPath: /actuator/info
+    envVarGroups:
+      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9104
-      # --- FIX: Manually build the JDBC URL ---
-      - key: DB_HOST
-        fromDatabase:
-          name: shopsquare-mysql
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: shopsquare-mysql
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: database
+      # --- NEW: Supabase Postgres Vars ---
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      # -----------------------------------------
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
       - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: user
+        value: ${DB_USER}
       - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: shopsquare-mysql
-          property: password
-      # --- FIX: Add Dialect and Connection Timeout ---
+        value: ${DB_PASS}
       - key: SPRING_JPA_DATABASE-PLATFORM
-        value: org.hibernate.dialect.MySQLDialect
-      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
-        value: 60000
+        value: org.hibernate.dialect.PostgreSQLDialect
 
   # -----------------------------------------------------------------
   #  7. Order Service
   # -----------------------------------------------------------------
-  - type: web # CHANGED from 'pserv' to 'web'
+  - type: web
     name: order-service
     runtime: docker
     dockerfilePath: ./orderservice/Dockerfile
     dockerContext: ./orderservice
     plan: free
     healthCheckPath: /actuator/info
+    envVarGroups:
+      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9105
-      # --- FIX: Manually build the JDBC URL ---
-      - key: DB_HOST
-        fromDatabase:
-          name: shopsquare-mysql
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: shopsquare-mysql
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: database
+      # --- NEW: Supabase Postgres Vars ---
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      # -----------------------------------------
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
       - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: user
+        value: ${DB_USER}
       - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: shopsquare-mysql
-          property: password
-      # --- FIX: Add Dialect and Connection Timeout ---
+        value: ${DB_PASS}
       - key: SPRING_JPA_DATABASE-PLATFORM
-        value: org.hibernate.dialect.MySQLDialect
-      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
-        value: 60000
+        value: org.hibernate.dialect.PostgreSQLDialect
 
   # -----------------------------------------------------------------
   #  8. Profile Service
   # -----------------------------------------------------------------
-  - type: web # CHANGED from 'pserv' to 'web'
+  - type: web
     name: profile-service
     runtime: docker
     dockerfilePath: ./profileservice/Dockerfile
     dockerContext: ./profileservice
     plan: free
     healthCheckPath: /actuator/info
+    envVarGroups:
+      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9106
-      # --- FIX: Manually build the JDBC URL ---
-      - key: DB_HOST
-        fromDatabase:
-          name: shopsquare-mysql
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: shopsquare-mysql
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: database
+      # --- NEW: Supabase Postgres Vars ---
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      # -----------------------------------------
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
       - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: user
+        value: ${DB_USER}
       - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: shopsquare-mysql
-          property: password
-      # --- FIX: Add Dialect and Connection Timeout ---
+        value: ${DB_PASS}
       - key: SPRING_JPA_DATABASE-PLATFORM
-        value: org.hibernate.dialect.MySQLDialect
-      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
-        value: 60000
+        value: org.hibernate.dialect.PostgreSQLDialect
 
   # -----------------------------------------------------------------
   #  9. Cart Item Service
   # -----------------------------------------------------------------
-  - type: web # CHANGED from 'pserv' to 'web'
+  - type: web
     name: cart-item-service
     runtime: docker
     dockerfilePath: ./cartitem/Dockerfile
     dockerContext: ./cartitem
     plan: free
     healthCheckPath: /actuator/info
+    envVarGroups:
+      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9107
-      # --- FIX: Manually build the JDBC URL ---
-      - key: DB_HOST
-        fromDatabase:
-          name: shopsquare-mysql
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: shopsquare-mysql
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: database
+      # --- NEW: Supabase Postgres Vars ---
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      # -----------------------------------------
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
       - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: user
+        value: ${DB_USER}
       - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: shopsquare-mysql
-          property: password
-      # --- FIX: Add Dialect and Connection Timeout ---
+        value: ${DB_PASS}
       - key: SPRING_JPA_DATABASE-PLATFORM
-        value: org.hibernate.dialect.MySQLDialect
-      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
-        value: 60000
+        value: org.hibernate.dialect.PostgreSQLDialect
 
   # -----------------------------------------------------------------
   #  10. Order Item Service
   # -----------------------------------------------------------------
-  - type: web # CHANGED from 'pserv' to 'web'
+  - type: web
     name: order-item-service
     runtime: docker
     dockerfilePath: ./orderitem/Dockerfile
     dockerContext: ./orderitem
     plan: free
     healthCheckPath: /actuator/info
+    envVarGroups:
+      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
       - key: SERVER_PORT
         value: 9108
-      # --- FIX: Manually build the JDBC URL ---
-      - key: DB_HOST
-        fromDatabase:
-          name: shopsquare-mysql
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: shopsquare-mysql
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: database
+      # --- NEW: Supabase Postgres Vars ---
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      # -----------------------------------------
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
       - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: shopsquare-mysql
-          property: user
+        value: ${DB_USER}
       - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: shopsquare-mysql
-          property: password
-      # --- FIX: Add Dialect and Connection Timeout ---
+        value: ${DB_PASS}
       - key: SPRING_JPA_DATABASE-PLATFORM
-        value: org.hibernate.dialect.MySQLDialect
-      - key: SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT
-        value: 60000
+        value: org.hibernate.dialect.PostgreSQLDialect
 
