@@ -52,8 +52,8 @@ services:
     dockerContext: ./user-service
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
-      - database-creds # Links to the group you will create
+    envVarGroups: # <-- FIX: Moved indentation to the correct level
+      - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://eureka-server:8761/eureka/
@@ -80,7 +80,7 @@ services:
     dockerContext: ./shopservice
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
+    envVarGroups: # <-- FIX: Moved indentation to the correct level
       - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
@@ -107,7 +107,7 @@ services:
     dockerContext: ./productservice
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
+    envVarGroups: # <-- FIX: Moved indentation to the correct level
       - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
@@ -134,7 +134,7 @@ services:
     dockerContext: ./cartservice
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
+    envVarGroups: # <-- FIX: Moved indentation to the correct level
       - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
@@ -161,7 +161,7 @@ services:
     dockerContext: ./orderservice
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
+    envVarGroups: # <-- FIX: Moved indentation to the correct level
       - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
@@ -188,7 +188,7 @@ services:
     dockerContext: ./profileservice
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
+    envVarGroups: # <-- FIX: Moved indentation to the correct level
       - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
@@ -215,7 +215,7 @@ services:
     dockerContext: ./cartitem
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
+    envVarGroups: # <-- FIX: Moved indentation to the correct level
       - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
@@ -242,7 +242,7 @@ services:
     dockerContext: ./orderitem
     plan: free
     healthCheckPath: /actuator/info
-    envVarGroups:
+    envVarGroups: # <-- FIX: Moved indentation to the correct level
       - database-creds
     envVars:
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
